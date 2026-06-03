@@ -15,4 +15,8 @@ public class Subject
     public string UserId { get; set; } = string.Empty;
 
     public ApplicationUser? User { get; set; }
+
+    public ICollection<StudyTask> StudyTasks { get; set; } = new List<StudyTask>();
+
+    public ICollection<StudySession> StudySessions { get; set; } = new List<StudySession>();
 }

@@ -19,4 +19,6 @@ public class Subject
     public ICollection<StudyTask> StudyTasks { get; set; } = new List<StudyTask>();
 
     public ICollection<StudySession> StudySessions { get; set; } = new List<StudySession>();
+
+    public ICollection<ProgressLog> ProgressLogs { get; set; } = new List<ProgressLog>();
 }

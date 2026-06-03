@@ -21,4 +21,8 @@ public class ApplicationUser : IdentityUser
     public ICollection<StudySession> StudySessions { get; set; } = new List<StudySession>();
 
     public ICollection<Goal> Goals { get; set; } = new List<Goal>();
+
+    public ICollection<ProgressLog> ProgressLogs { get; set; } = new List<ProgressLog>();
+
+    public ICollection<Achievement> Achievements { get; set; } = new List<Achievement>();
 }

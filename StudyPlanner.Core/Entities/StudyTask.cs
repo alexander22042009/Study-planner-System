@@ -14,7 +14,7 @@ public class StudyTask
 
     public TaskPriority Priority { get; set; } = TaskPriority.Medium;
 
-    public TaskStatus Status { get; set; } = TaskStatus.Pending;
+    public Enums.TaskStatus Status { get; set; } = Enums.TaskStatus.Pending;
 
     public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
 

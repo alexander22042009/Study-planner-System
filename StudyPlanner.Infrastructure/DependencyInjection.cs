@@ -8,6 +8,7 @@ using StudyPlanner.Infrastructure.Data;
 using StudyPlanner.Infrastructure.Identity;
 using StudyPlanner.Infrastructure.Mapping;
 using StudyPlanner.Infrastructure.Repositories;
+using StudyPlanner.Infrastructure.Services;
 
 namespace StudyPlanner.Infrastructure;
 
@@ -30,6 +31,9 @@ public static class DependencyInjection
         services.AddScoped<IProgressRepository, ProgressRepository>();
         services.AddScoped<IAchievementRepository, AchievementRepository>();
         services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ISubjectService, SubjectService>();
+        services.AddScoped<ITaskService, TaskService>();
 
         return services;
     }

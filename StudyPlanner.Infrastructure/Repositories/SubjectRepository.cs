@@ -16,6 +16,8 @@ public class SubjectRepository : GenericRepository<Subject>, ISubjectRepository
     public async Task<Subject?> GetByIdForUserAsync(int id, string userId, CancellationToken cancellationToken = default) =>
         await DbSet
             .AsNoTracking()
+            .Include(s => s.StudyTasks)
+            .Include(s => s.StudySessions)
             .FirstOrDefaultAsync(s => s.Id == id && s.UserId == userId, cancellationToken);
 
     public async Task<PagedResult<Subject>> GetPagedForUserAsync(

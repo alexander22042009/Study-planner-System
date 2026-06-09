@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using StudyPlanner.Infrastructure.Entities;
+using StudyPlanner.Core.Entities;
 
 namespace StudyPlanner.Infrastructure.Data.Configurations;
 

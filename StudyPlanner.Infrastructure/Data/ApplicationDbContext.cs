@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using StudyPlanner.Core.Entities;
-using StudyPlanner.Infrastructure.Entities;
-
 namespace StudyPlanner.Infrastructure.Data;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>

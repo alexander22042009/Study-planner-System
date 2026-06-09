@@ -1,6 +1,4 @@
-using StudyPlanner.Core.Entities;
-
-namespace StudyPlanner.Infrastructure.Entities;
+namespace StudyPlanner.Core.Entities;
 
 public class RefreshToken
 {

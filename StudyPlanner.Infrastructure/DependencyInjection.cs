@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using StudyPlanner.Core.Entities;
 using StudyPlanner.Core.Interfaces.Repositories;
 using StudyPlanner.Core.Interfaces.Services;
 using StudyPlanner.Core.Settings;
@@ -20,6 +22,18 @@ public static class DependencyInjection
 
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.Password.RequiredLength = 8;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.User.RequireUniqueEmail = true;
+            })
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
         services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
@@ -41,5 +55,10 @@ public static class DependencyInjection
         services.AddScoped<IAdminService, AdminService>();
 
         return services;
+    }
+
+    public static async Task InitializeDatabaseAsync(IServiceProvider serviceProvider)
+    {
+        await DbInitializer.InitializeAsync(serviceProvider);
     }
 }

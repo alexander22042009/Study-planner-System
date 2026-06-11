@@ -4,6 +4,7 @@ using StudyPlanner.Core.Entities;
 using StudyPlanner.Core.Enums;
 using StudyPlanner.Core.Exceptions;
 using StudyPlanner.Core.Interfaces.Repositories;
+using StudyPlanner.Core.Interfaces.Services;
 using StudyPlanner.Core.Models.Common;
 using StudyPlanner.Infrastructure.Services;
 using StudyPlanner.Tests.Helpers;
@@ -17,6 +18,7 @@ public class TaskServiceTests
     private Mock<ITaskRepository> _taskRepository = null!;
     private Mock<ISubjectRepository> _subjectRepository = null!;
     private Mock<IUnitOfWork> _unitOfWork = null!;
+    private Mock<IAchievementService> _achievementService = null!;
     private TaskService _service = null!;
 
     [SetUp]
@@ -25,7 +27,8 @@ public class TaskServiceTests
         _taskRepository = new Mock<ITaskRepository>();
         _subjectRepository = new Mock<ISubjectRepository>();
         _unitOfWork = new Mock<IUnitOfWork>();
-        _service = new TaskService(_taskRepository.Object, _subjectRepository.Object, _unitOfWork.Object, TestMapperFactory.Create());
+        _achievementService = new Mock<IAchievementService>();
+        _service = new TaskService(_taskRepository.Object, _subjectRepository.Object, _unitOfWork.Object, TestMapperFactory.Create(), _achievementService.Object);
     }
 
     [Test]

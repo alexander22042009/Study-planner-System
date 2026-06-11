@@ -136,6 +136,29 @@ public class GoalService : IGoalService
         return _mapper.Map<GoalDetailsDto>(goal);
     }
 
+    public async Task<GoalDetailsDto> AddHoursAsync(int id, AddGoalHoursDto dto, string userId, CancellationToken cancellationToken = default)
+    {
+        var goal = await _goalRepository.GetByIdAsync(id, cancellationToken);
+        if (goal is null || goal.UserId != userId)
+        {
+            throw new NotFoundException($"Goal with id {id} was not found.");
+        }
+
+        if (goal.Status == GoalStatus.Completed)
+        {
+            throw new BadRequestException("Goal is already completed.");
+        }
+
+        goal.CurrentHours = Math.Min(goal.CurrentHours + dto.HoursStudied, goal.TargetHours);
+        ApplyGoalStatus(goal);
+
+        _goalRepository.Update(goal);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _achievementService.EvaluateAchievementsAsync(userId, cancellationToken);
+
+        return _mapper.Map<GoalDetailsDto>(goal);
+    }
+
     public async Task<GoalDetailsDto> CompleteAsync(int id, string userId, CancellationToken cancellationToken = default)
     {
         var goal = await _goalRepository.GetByIdAsync(id, cancellationToken);

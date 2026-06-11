@@ -15,17 +15,20 @@ public class TaskService : ITaskService
     private readonly ISubjectRepository _subjectRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IAchievementService _achievementService;
 
     public TaskService(
         ITaskRepository taskRepository,
         ISubjectRepository subjectRepository,
         IUnitOfWork unitOfWork,
-        IMapper mapper)
+        IMapper mapper,
+        IAchievementService achievementService)
     {
         _taskRepository = taskRepository;
         _subjectRepository = subjectRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _achievementService = achievementService;
     }
 
     public async Task<PagedResult<TaskListDto>> GetAllAsync(
@@ -141,6 +144,7 @@ public class TaskService : ITaskService
 
         _taskRepository.Update(task);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _achievementService.EvaluateAchievementsAsync(userId, cancellationToken);
 
         var completed = await _taskRepository.GetByIdForUserAsync(id, userId, cancellationToken);
         return _mapper.Map<TaskDetailsDto>(completed);

@@ -68,8 +68,18 @@ public class AchievementsController : BaseApiController
     [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<AchievementListDto>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUserAchievements(CancellationToken cancellationToken)
     {
+        await _achievementService.EvaluateAchievementsAsync(GetUserId(), cancellationToken);
         var result = await _achievementService.GetUserAchievementsAsync(GetUserId(), cancellationToken);
         return OkResponse(result);
+    }
+
+    [HttpPost("evaluate")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<AchievementListDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Evaluate(CancellationToken cancellationToken)
+    {
+        await _achievementService.EvaluateAchievementsAsync(GetUserId(), cancellationToken);
+        var result = await _achievementService.GetUserAchievementsAsync(GetUserId(), cancellationToken);
+        return OkResponse(result, "Achievements evaluated successfully.");
     }
 
     [HttpPost("{id:int}/unlock")]

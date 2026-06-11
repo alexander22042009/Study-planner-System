@@ -49,11 +49,14 @@ app.UseSwaggerUI(options =>
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseCors(CorsExtensions.PolicyName);
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 app.MapStudyPlannerHealthChecks();
+app.MapFallbackToFile("index.html");
 
 app.Run();

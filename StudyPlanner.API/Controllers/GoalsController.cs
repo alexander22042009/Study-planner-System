@@ -78,6 +78,16 @@ public class GoalsController : BaseApiController
         return OkResponse(result, "Goal progress updated successfully.");
     }
 
+    [HttpPost("{id:int}/add-hours")]
+    [ProducesResponseType(typeof(ApiResponse<GoalDetailsDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> AddHours(int id, [FromBody] AddGoalHoursDto dto, CancellationToken cancellationToken)
+    {
+        var result = await _goalService.AddHoursAsync(id, dto, GetUserId(), cancellationToken);
+        return OkResponse(result, result.Status == GoalStatus.Completed
+            ? "Goal completed! Target hours reached."
+            : "Study hours added successfully.");
+    }
+
     [HttpPost("{id:int}/complete")]
     [ProducesResponseType(typeof(ApiResponse<GoalDetailsDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Complete(int id, CancellationToken cancellationToken)

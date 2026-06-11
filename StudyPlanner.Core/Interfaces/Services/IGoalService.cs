@@ -22,5 +22,7 @@ public interface IGoalService
 
     Task<GoalDetailsDto> UpdateProgressAsync(int id, UpdateGoalProgressDto dto, string userId, CancellationToken cancellationToken = default);
 
+    Task<GoalDetailsDto> AddHoursAsync(int id, AddGoalHoursDto dto, string userId, CancellationToken cancellationToken = default);
+
     Task<GoalDetailsDto> CompleteAsync(int id, string userId, CancellationToken cancellationToken = default);
 }

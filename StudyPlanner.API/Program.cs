@@ -30,7 +30,7 @@ builder.Services.AddControllers()
         };
     });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddStudyPlannerSwagger();
 
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<ApplicationDbContext>();
@@ -39,11 +39,12 @@ var app = builder.Build();
 
 await DependencyInjection.InitializeDatabaseAsync(app.Services);
 
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Study Planner System API v1");
+    options.RoutePrefix = "swagger";
+});
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
@@ -53,6 +54,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapStudyPlannerHealthChecks();
 
 app.Run();

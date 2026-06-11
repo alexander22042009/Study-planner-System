@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Mvc;
 using StudyPlanner.API.Extensions;
+using StudyPlanner.API.Middleware;
+using StudyPlanner.Core.Models.Common;
 using StudyPlanner.Infrastructure;
 using StudyPlanner.Infrastructure.Data;
 
@@ -8,7 +11,24 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddStudyPlannerCors(builder.Configuration);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(x => x.Value?.Errors.Count > 0)
+                .SelectMany(x => x.Value!.Errors.Select(e => e.ErrorMessage));
+
+            var response = ErrorResponse.Create(
+                StatusCodes.Status400BadRequest,
+                "Validation failed.",
+                context.HttpContext.TraceIdentifier,
+                errors);
+
+            return new BadRequestObjectResult(response);
+        };
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -24,6 +44,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseCors(CorsExtensions.PolicyName);

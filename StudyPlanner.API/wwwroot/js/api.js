@@ -71,7 +71,7 @@ const Api = {
     },
 
     getTasks() {
-        return this.request('/api/tasks?pageSize=50&sortBy=deadline');
+        return this.request('/api/tasks?pageSize=50&sortBy=priority&sortDirection=1');
     },
 
     createTask(dto) {
@@ -103,6 +103,10 @@ const Api = {
 
     getSessions() {
         return this.request('/api/studysessions?pageSize=20');
+    },
+
+    createSession(dto) {
+        return this.request('/api/studysessions', { method: 'POST', body: JSON.stringify(dto) });
     },
 
     getAchievements() {

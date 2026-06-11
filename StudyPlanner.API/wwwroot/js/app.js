@@ -125,7 +125,7 @@ async function renderSubjects() {
 
 async function renderTasks() {
     const [data, subjectsData] = await Promise.all([Api.getTasks(), Api.getSubjects()]);
-    const items = data.items || [];
+    const items = sortTasksByPriority(data.items || []);
     const subjects = subjectsData.items || [];
     const statusLabel = s => ['Pending','In Progress','Completed','Overdue'][s] || s;
     const el = views.tasks.el();
@@ -154,16 +154,19 @@ async function renderTasks() {
         </div>
         <div class="panel">
             <h3>Your Tasks (${data.totalCount})</h3>
-            ${items.length ? `<table>
+            ${items.length ? `<table class="tasks-table">
                 <tr><th>Title</th><th>Subject</th><th>Deadline</th><th>Priority</th><th>Status</th><th></th></tr>
-                ${items.map(t => `<tr>
+                ${items.map(t => {
+                    const pr = getPriority(t.priority);
+                    return `<tr class="task-row ${pr.rowClass}">
                     <td>${escapeHtml(t.title)}</td>
                     <td>${escapeHtml(t.subjectName)}</td>
                     <td>${new Date(t.deadline).toLocaleDateString()}</td>
-                    <td>${['Low','Medium','High','Urgent'][t.priority] || t.priority}</td>
+                    <td><span class="badge ${pr.badgeClass}">${pr.label}</span></td>
                     <td><span class="badge ${t.status === 2 ? 'completed' : 'pending'}">${statusLabel(t.status)}</span></td>
                     <td>${t.status !== 2 ? `<button class="btn-sm success" data-complete="${t.id}">Complete</button>` : ''}</td>
-                </tr>`).join('')}
+                </tr>`;
+                }).join('')}
             </table>` : '<p class="empty">No tasks yet</p>'}
         </div>`;
 
@@ -268,10 +271,30 @@ async function renderGoals() {
 }
 
 async function renderSessions() {
-    const data = await Api.getSessions();
+    const [data, subjectsData] = await Promise.all([Api.getSessions(), Api.getSubjects()]);
     const items = data.items || [];
+    const subjects = subjectsData.items || [];
     const el = views.sessions.el();
+    const subjectOptions = subjects.map(s =>
+        `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+
+    const now = new Date();
+    const end = new Date(now.getTime() + 60 * 60 * 1000);
+    const toLocal = d => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+
     el.innerHTML = `
+        <div class="panel">
+            <h3>Add Study Session</h3>
+            ${subjects.length ? `<div class="form-row">
+                <input type="text" id="session-title" placeholder="Session title" />
+                <select id="session-subject">${subjectOptions}</select>
+                <input type="datetime-local" id="session-start" value="${toLocal(now)}" />
+                <input type="datetime-local" id="session-end" value="${toLocal(end)}" />
+                <button type="button" class="btn" id="add-session-btn">Add Session</button>
+            </div>
+            <input type="text" id="session-notes" placeholder="Notes (optional)" style="width:100%;margin-top:.5rem;padding:.5rem .75rem;border-radius:8px;border:1px solid var(--surface2);background:var(--bg);color:var(--text)" />`
+            : '<p class="empty">Create a subject first before adding sessions.</p>'}
+        </div>
         <div class="panel">
             <h3>Study Sessions (${data.totalCount})</h3>
             ${items.length ? `<table>
@@ -284,6 +307,27 @@ async function renderSessions() {
                 </tr>`).join('')}
             </table>` : '<p class="empty">No sessions yet</p>'}
         </div>`;
+
+    const addBtn = document.getElementById('add-session-btn');
+    if (addBtn) {
+        addBtn.onclick = async () => {
+            const title = document.getElementById('session-title').value.trim();
+            const subjectId = parseInt(document.getElementById('session-subject').value, 10);
+            const startTime = document.getElementById('session-start').value;
+            const endTime = document.getElementById('session-end').value;
+            const notes = document.getElementById('session-notes').value.trim();
+            if (!title || !startTime || !endTime) return;
+            await Api.createSession({
+                title,
+                subjectId,
+                startTime: new Date(startTime).toISOString(),
+                endTime: new Date(endTime).toISOString(),
+                notes: notes || null
+            });
+            await Api.evaluateAchievements();
+            await renderSessions();
+        };
+    }
 }
 
 async function renderAchievements() {
@@ -312,6 +356,21 @@ async function renderAchievements() {
         await Api.evaluateAchievements();
         await renderAchievements();
     };
+}
+
+const PRIORITIES = [
+    { label: 'Low', rowClass: 'priority-low', badgeClass: 'priority-badge-low' },
+    { label: 'Medium', rowClass: 'priority-medium', badgeClass: 'priority-badge-medium' },
+    { label: 'High', rowClass: 'priority-high', badgeClass: 'priority-badge-high' },
+    { label: 'Urgent', rowClass: 'priority-urgent', badgeClass: 'priority-badge-urgent' }
+];
+
+function getPriority(p) {
+    return PRIORITIES[p] || PRIORITIES[1];
+}
+
+function sortTasksByPriority(items) {
+    return [...items].sort((a, b) => b.priority - a.priority);
 }
 
 function escapeHtml(text) {
